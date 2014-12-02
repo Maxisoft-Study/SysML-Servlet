@@ -1,9 +1,7 @@
 package maxime.mica.servlet;
 
 
-import org.eclipse.jetty.server.Server;
-import org.eclipse.jetty.servlet.ServletContextHandler;
-import org.eclipse.jetty.servlet.ServletHolder;
+import maxime.mica.osgi.Activator;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -14,19 +12,7 @@ import java.io.IOException;
 public class EmbeddingJettyWithServlet {
 
     public static void main(String[] args) throws Exception {
-
-        Server server = new Server(8080);
-
-        ServletContextHandler context = new ServletContextHandler();
-
-        context.setContextPath("/");
-
-        server.setHandler(context);
-
-
-        context.addServlet(new ServletHolder(new HelloServlet()), "/*");
-        server.start();
-
+        new Activator().start(null);
     }
 
     public static class HelloServlet extends HttpServlet {

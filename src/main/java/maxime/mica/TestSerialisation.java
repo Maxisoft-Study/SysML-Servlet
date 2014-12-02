@@ -3,11 +3,14 @@ package maxime.mica;
 import com.thoughtworks.xstream.XStream;
 import maxime.mica.model.*;
 
+import java.io.FileWriter;
+import java.io.IOException;
+
 
 public class TestSerialisation {
 
 
-    public static void main(String... args) {
+    public static void main(String... args) throws IOException {
         XStream xstream = new XStream();
 
         xstream.processAnnotations(
@@ -32,7 +35,7 @@ public class TestSerialisation {
         doc.edit()
                 .createRequirement("r2d2", "of course", "bip bip")
                 .addClient(c3po, Satisfy.class);
-        xstream.toXML(doc, System.out);
+        xstream.toXML(doc, new FileWriter("test.xml"));
     }
 
 }

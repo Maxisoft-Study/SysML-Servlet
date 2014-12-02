@@ -1,5 +1,4 @@
 apply plugin: 'java'
-apply plugin: 'osgi'
 
 sourceCompatibility = 1.7
 version = '1.0'
@@ -15,18 +14,10 @@ task copyToLib(type: Copy) {
 
 build.dependsOn copyToLib
 
-jar {
-    manifest { // the manifest of the default jar is of type OsgiManifest
-        name = 'servlet a maxime'
-        instruction 'Private-Package',
-                'yolo'
-    }
-}
-
 dependencies {
-
     compile 'org.eclipse.jetty:jetty-servlet:+'
     compile 'org.apache.felix:org.osgi.core:+'
     compile 'com.thoughtworks.xstream:xstream:+'
+    compile 'com.squareup.okhttp:okhttp:2.+'
     compile fileTree(dir: "lib", includes: ['*.jar'])
 }

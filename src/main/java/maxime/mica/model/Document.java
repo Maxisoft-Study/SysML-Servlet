@@ -55,6 +55,7 @@ public class Document implements Synchronizable {
         return edges;
     }
 
+    @SuppressWarnings("unused")
     private Object readResolve() {
         for (Requirement requirement : getRequirements().values()) {
             requirement.setDocument(this);
