@@ -40,7 +40,6 @@ public class EmbeddingJettyWithServlet {
             response.setStatus(HttpServletResponse.SC_OK);
             response.getWriter().println(greeting);
         }
-
     }
 
 }
