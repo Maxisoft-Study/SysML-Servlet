@@ -1,7 +1,6 @@
 package maxime.mica.osgi;
 
 import maxime.mica.servlet.Documents;
-import maxime.mica.servlet.EmbeddingJettyWithServlet;
 import maxime.mica.servlet.ListDocuments;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.servlet.ServletContextHandler;
@@ -23,7 +22,6 @@ public class Activator implements BundleActivator {
 
         server.setHandler(servletContextHandler);
 
-        servletContextHandler.addServlet(new ServletHolder(new EmbeddingJettyWithServlet.HelloServlet()), "/");
         servletContextHandler.addServlet(new ServletHolder(new ListDocuments()), "/documents");
         servletContextHandler.addServlet(new ServletHolder(new Documents()), "/documents/*");
         server.start();
