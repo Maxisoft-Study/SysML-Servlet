@@ -1,48 +1,51 @@
 package maxime.mica.servlet;
 
+import com.google.common.io.ByteStreams;
+import com.google.common.io.Files;
+
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.File;
 import java.io.IOException;
-import java.nio.file.FileSystem;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.StandardCopyOption;
+import java.util.regex.Pattern;
+
 
 public class Documents extends HttpServlet {
 
-    private static Path prepareFilePath(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        FileSystem fs = SandBoxFileSystem.getFileSystem();
-        Path file = Files.createDirectories(fs.getPath("/documents", req.getPathInfo()));
-        if (file == null) {
-            resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-            return null;
-        }
-        if (Files.notExists(file) || Files.isDirectory(file)) {
-            resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
-            return null;
-        }
-        return file;
-    }
+    public static final Pattern PATH_PATTERN = Pattern.compile("\\w[\\w\\.]*");
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        Path file = prepareFilePath(req, resp);
-        if (file != null) {
-            Files.copy(file, resp.getOutputStream());
-            resp.setContentType("application/xml");
-            resp.setStatus(HttpServletResponse.SC_OK);
+
+        String pathInfo = req.getPathInfo();
+        if (pathInfo == null || pathInfo.isEmpty() || pathInfo.equals("/")) {
+            listFiles(resp);
+            return;
         }
+        String pathname = pathInfo.substring(1);
+        if (!checkFilePath(pathname, resp)) {
+            resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            return;
+        }
+        File file = new File(pathname);
+        Files.copy(file, resp.getOutputStream());
+        resp.setContentType("application/xml");
+        resp.setStatus(HttpServletResponse.SC_OK);
     }
 
     @Override
     protected void doPut(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        Path file = prepareFilePath(req, resp);
-        if (file != null) {
-            Files.copy(req.getInputStream(), file, StandardCopyOption.REPLACE_EXISTING);
-            resp.setStatus(HttpServletResponse.SC_OK);
+        String pathInfo = req.getPathInfo();
+        String pathname = pathInfo.substring(1);
+        if (!checkFilePath(pathname, resp)) {
+            resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            return;
         }
+        File file = new File(pathname);
+        Files.write(ByteStreams.toByteArray(req.getInputStream()), file);
+        resp.setStatus(HttpServletResponse.SC_OK);
     }
 
     @Override
@@ -50,11 +53,25 @@ public class Documents extends HttpServlet {
         this.doPut(req, resp);
     }
 
-    @Override
-    protected void doDelete(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        Path file = prepareFilePath(req, resp);
-        if (file != null) {
-            Files.delete(file);
+    private boolean checkFilePath(String pathname, HttpServletResponse resp) {
+        return PATH_PATTERN.matcher(pathname).matches();
+    }
+
+    private boolean listFiles(HttpServletResponse resp) throws IOException {
+        File[] listOfFiles = new File(System.getProperty("user.dir")).listFiles();
+
+        if (listOfFiles == null) {
+            resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            return false;
         }
+
+        for (File file : listOfFiles) {
+            if (file.isFile()) {
+                resp.getWriter().println(file.getName());
+            }
+        }
+        resp.setContentType("text/plain");
+        resp.setStatus(HttpServletResponse.SC_OK);
+        return true;
     }
 }

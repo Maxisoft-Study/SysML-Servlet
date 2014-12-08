@@ -1,6 +1,6 @@
 apply plugin: 'java'
 
-sourceCompatibility = 1.7
+sourceCompatibility = 1.6
 version = '1.0'
 
 repositories {
@@ -19,5 +19,6 @@ dependencies {
     compile 'org.apache.felix:org.osgi.core:+'
     compile 'com.thoughtworks.xstream:xstream:+'
     compile 'com.squareup.okhttp:okhttp:2.+'
+    compile 'com.google.guava:guava:18.0'
     compile fileTree(dir: "lib", includes: ['*.jar'])
 }
